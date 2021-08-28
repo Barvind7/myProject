@@ -1,0 +1,8 @@
+.header-wrapper {
+    background: linear-gradient(0deg,#0054a6 0%, #00396b 100%);
+    border: 1px solid green;
+}
+
+.inactive-row{
+    background-color:#6c757d;
+}
