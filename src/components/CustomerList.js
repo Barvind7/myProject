@@ -1,12 +1,17 @@
+import React, {useState} from 'react';
 import { Container, Table, ToggleButtonGroup, ToggleButton } from "react-bootstrap";
 import { useHistory } from "react-router";
+import Pagination from 'react-bootstrap/Pagination';
 import customerData from '../MockData/customerDetails.json';
 import './Component.css';
 
 const CustomerList =() =>{
     
+    let totalPageIndex = [];
     let history = useHistory();
     const tableHeader = ["First Name", "Last Name", "Company", "City", "State", "SetIsActive"];
+    const [pageIndex, setPageIndex] = useState(0);
+    const [activeIndex, setActiveIndex] = useState(0);
 
     const splitAddress = (address, type) =>{
         let addressArray = address.split(",");
@@ -18,14 +23,29 @@ const CustomerList =() =>{
         }
     }
     const handleClick = (event) =>{
-        const customerDetail = event.target.getAttribute('data-item');
-        console.log(customerDetail); 
+        const customerDetail = event.target.getAttribute('data-item'); 
+        let customerParsedData = JSON.parse(customerDetail);
+        console.log(customerParsedData);
         history.push({
-            pathname: "/customerDetails",
+            pathname: "/customer?id=" + customerParsedData._id,
             state: {
                 customerDetail: customerDetail
             }
         })   
+    }
+
+    const handlePageClick = (event) =>{
+        let activeId = event.target.id;  
+        setPageIndex( event.target.id)
+        setActiveIndex(activeId);
+    }
+
+    for (let number = 0; number < Math.floor(customerData.length / 8); number++) {
+        totalPageIndex.push(
+            <Pagination.Item key={number} id={number} active={number === activeIndex} onClick={handlePageClick}>
+            {number}
+            </Pagination.Item>,
+        );
     }
     
     return(
@@ -39,9 +59,9 @@ const CustomerList =() =>{
                     </tr>
                 </thead>
                 <tbody>
-                    {customerData.map((item, i) => (
+                    {customerData.slice(pageIndex * 8, pageIndex * 8 + 8).map((item, i) => (
                         <tr key={i} onDoubleClick={item.isActive && handleClick}>
-                            <td className={!item.isActive && "inactive-row"} data-item={JSON.stringify(item)}>{item.name.first}</td>
+                           <td className={!item.isActive && "inactive-row"} data-item={JSON.stringify(item)}>{item.name.first}</td>
                             <td className={!item.isActive && "inactive-row"} data-item={JSON.stringify(item)}>{item.name.last}</td>
                             <td className={!item.isActive && "inactive-row"} data-item={JSON.stringify(item)}>{item.company}</td>
                             <td className={!item.isActive && "inactive-row"} data-item={JSON.stringify(item)}>{splitAddress(item.address, "City")}</td>
@@ -61,6 +81,7 @@ const CustomerList =() =>{
                         ))}
                 </tbody>
             </Table>
+            <Pagination>{totalPageIndex}</Pagination>
         </Container>
     )
 }

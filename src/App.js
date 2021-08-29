@@ -10,8 +10,9 @@ function App() {
     <div className="d-flex flex-column min-vh-100 app">
       <Header></Header>
         <Switch>
+          <Route exact path="/" component={CustomerList}></Route>
           <Route exact path="/customers" component={CustomerList}></Route>
-          <Route exact path="/customerDetails" component={CustomerDetails}></Route>
+          <Route path="/customer:id" component={CustomerDetails}></Route>
         </Switch>
     </div>
   );

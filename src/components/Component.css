@@ -1,8 +1,30 @@
 .header-wrapper {
-    background: linear-gradient(0deg,#0054a6 0%, #00396b 100%);
+    background: linear-gradient(0deg,#68696b 0%, #747677 100%);
     border: 1px solid green;
 }
 
 .inactive-row{
-    background-color:#6c757d;
+    background-color:#68696b;
+}
+
+.form-padding{
+    padding-top: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.padding-img{
+    padding-left: 15px;
+}
+
+.image-profile {
+    height: 71px !important;
+}
+
+.align-center{
+    justify-content: center;
+}
+
+.form-control{
+    text-align: center;
 }
