@@ -6,13 +6,15 @@ import './Component.css';
 
 const CustomerList =() =>{
 
+    var axios = require("axios");
     let totalPageIndex = [];
     let history = useHistory();
-    const tableHeader = ["First Name", "Last Name", "Company", "City", "State", "SetIsActive"];
     const [pageIndex, setPageIndex] = useState(0);
     const [activeIndex, setActiveIndex] = useState(0);
     let [customerData, setCustomerData] = useState([]);
-    var axios = require("axios");
+    let [customerNameData, setCustomerNameData] = useState([]);
+    let [customerDigestData, setCustomerDigestData] = useState([]);
+    const tableHeader = ["First Name", "Last Name", "Company", "City", "State", "Digest Value", "SetIsActive"];
 
     const splitAddress = (address, type) =>{
         let addressArray = address.split(",");
@@ -26,7 +28,6 @@ const CustomerList =() =>{
     const handleClick = (event) =>{
         const customerDetail = event.target.getAttribute('data-item'); 
         let customerParsedData = JSON.parse(customerDetail);
-        console.log(customerParsedData);
         history.push({
             pathname: "/customer?id=" + customerParsedData._id,
             state: {
@@ -39,6 +40,23 @@ const CustomerList =() =>{
         let activeId = event.target.id;  
         setPageIndex( event.target.id)
         setActiveIndex(activeId);
+    }
+
+    const fetchDigetNames = (nameData) =>{
+        let promises = [];
+        let myObject = [];
+
+        for (let i = 0; i < nameData.length; i++) {
+            promises.push(axios.get(`https://api.hashify.net/hash/md4/hex?value=${nameData[i]}`));
+        }
+
+        axios.all(promises)
+            .then(axios.spread((...args) => {
+                for (let i = 0; i < args.length; i++) {
+                    myObject.push(args[i].data.Digest);
+                }
+                setCustomerDigestData(myObject);
+            }))
     }
 
     for (let number = 0; number < Math.floor(customerData && customerData.length / 8); number++) {
@@ -55,6 +73,21 @@ const CustomerList =() =>{
             setCustomerData(response.data);
         });
     },[])
+
+    useEffect(() => {
+        let arry = customerData.slice(pageIndex * 8, pageIndex * 8 + 8).map(itema => (itema.name.first + itema.name.last));
+        setCustomerNameData(arry);
+
+    },[customerData, pageIndex])
+
+    useEffect(() => {
+        fetchDigetNames(customerNameData);
+
+    },[customerNameData])
+
+    useEffect(() => {
+
+    },[customerDigestData])
     
     return(
         <Container>
@@ -74,6 +107,7 @@ const CustomerList =() =>{
                             <td className={!item.isActive && "inactive-row"} data-item={JSON.stringify(item)}>{item.company}</td>
                             <td className={!item.isActive && "inactive-row"} data-item={JSON.stringify(item)}>{splitAddress(item.address, "City")}</td>
                             <td className={!item.isActive && "inactive-row"} data-item={JSON.stringify(item)}>{splitAddress(item.address, "State")}</td>
+                            <td className={!item.isActive && "inactive-row"} data-item={JSON.stringify(item)}>{customerDigestData[i]}</td>
                             <td>
                                 <ToggleButtonGroup type="radio" id={`user-${item.name.first}-isActive`} 
                                 name={`user-${item.name.first}-isActive`} defaultValue={item.isActive ? 1 : 2}>
